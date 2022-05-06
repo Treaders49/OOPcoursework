@@ -58,15 +58,20 @@ public class cas extends JFrame {
 				if (user.contains("admin")) {
 					int x;
 					for (x = 0; x < 4; x++) {
-						usersArray.get(x).contains(user.substring(0,(user.indexOf("-"))));
-						break;
+						if (usersArray.get(x).contains(user.substring(0,(user.indexOf(" -"))))){
+							break;
+						}
+						
+						
 					}
 					admin person = new admin(user.substring(0,(user.indexOf("-"))), usersArray.get(x).get(3), usersArray.get(x).get(4), usersArray.get(x).get(5));
 				} else {
 					int x;
 					for (x = 0; x < 4; x++) {
-						usersArray.get(x).contains(user.substring(0,(user.indexOf("-"))));
-						break;
+						if (usersArray.get(x).contains(user.substring(0,(user.indexOf(" -"))))) {
+							break;
+						}
+						
 					}
 					customer person = new customer(user.substring(0,(user.indexOf("-"))), usersArray.get(x).get(3), usersArray.get(x).get(4), usersArray.get(x).get(5));
 				}

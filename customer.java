@@ -1,5 +1,7 @@
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -10,6 +12,8 @@ import java.util.Scanner;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 
 
 public class customer extends user {
@@ -17,10 +21,15 @@ public class customer extends user {
 	private JPanel contentPane;
 	private JTable productTable;
 	private JTable basketTable;
+	private JPanel productPanel;
+	private JPanel inventoryContentPanel;
+	private JPanel purchaseButtonPanel;
 	private DefaultTableModel dtmItems;
 	private DefaultTableModel dtmBasket;
 	private HashMap<Item, Integer> basket;
+	private ArrayList<Item> inventory;
 	private float basketTotal;
+	
 	
 	public customer(String name,String houseNum, String postcode, String city) {
 		super(name, houseNum, postcode, city);
@@ -31,18 +40,60 @@ public class customer extends user {
 		tabbedPane.setBounds(10, 11, 1014, 539);
 		getContentPane().add(tabbedPane);
 		
-		JPanel productPanel = new JPanel();
+		productPanel = new JPanel();
 		tabbedPane.addTab("View Items", null, productPanel, null);
 		productPanel.setLayout(null);
 		
+		
+		
 		JScrollPane inventoryScrollPane = new JScrollPane();
-		inventoryScrollPane.setBounds(10, 5, 850, 495);
+		
+		inventoryScrollPane.setBounds(0,0,870,500);
 		productPanel.add(inventoryScrollPane);
 		
-		productTable = new JTable();
-		inventoryScrollPane.setViewportView(productTable);
+		inventoryContentPanel = new JPanel();
+		inventoryContentPanel.setBounds(0,0,850,495);
+		GridBagLayout gbl_inventoryContentPanel = new GridBagLayout();
+		gbl_inventoryContentPanel.columnWidths = new int[]{0, 106, 0};
+		gbl_inventoryContentPanel.rowHeights = new int[]{228, 6};
+		gbl_inventoryContentPanel.columnWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
+		gbl_inventoryContentPanel.rowWeights = new double[]{1.0, 0.0};
+		inventoryContentPanel.setLayout(gbl_inventoryContentPanel);
+		dtmItems = new DefaultTableModel();
+		dtmItems.setColumnIdentifiers(new Object[] {"Barcode" , "Device Type", "Style", "Brand", "Colour", "Connectivity", "Layout", "No. Buttons", "Quantity", "Price"});
+		inventoryScrollPane.setViewportView(inventoryContentPanel);
 		
-		populateTable(productPanel);
+		productTable = new JTable();
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.insets = new Insets(0, 0, 5, 5);
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.fill = GridBagConstraints.BOTH;
+		inventoryContentPanel.add(productTable, gbc);
+		
+		
+		
+		
+		
+		
+		
+		
+		productTable.setModel(dtmItems);
+		inventoryScrollPane.setColumnHeaderView(productTable.getTableHeader());
+		
+		purchaseButtonPanel = new JPanel();
+		purchaseButtonPanel.setLayout(null);
+		GridBagConstraints gbc_purchaseButtonPanel = new GridBagConstraints();
+		gbc_purchaseButtonPanel.insets = new Insets(0, 0, 5, 0);
+		gbc_purchaseButtonPanel.fill = GridBagConstraints.BOTH;
+		gbc_purchaseButtonPanel.gridx = 1;
+		gbc_purchaseButtonPanel.gridy = 0;
+		inventoryContentPanel.add(purchaseButtonPanel, gbc_purchaseButtonPanel);
+		
+		
+		
+		inventory = new ArrayList<Item>();
+		populateTable();
 		
 		JPanel basketPanel = new JPanel();
 		basketPanel.setLayout(null);
@@ -60,7 +111,7 @@ public class customer extends user {
 				basket.clear();
 				basketTotal = 0;
 				updateBasketTable();
-				populateTable(productPanel);
+				updateInventoryTable();
 				
 			}
 		});
@@ -130,7 +181,8 @@ public class customer extends user {
 				
 			}
 			if (!(validationIssues)) {
-				JOptionPane.showMessageDialog(null, "Â£" + String.format("%2f", basketTotal) + "paid using " + paymentMethod + ", and the delivery address is number " + houseNum + " " + postcode + " ," + city );
+				JOptionPane.showMessageDialog(null, "£" + String.format("%.2f", basketTotal) + " paid using " + paymentMethod + ", and the delivery address is number " + houseNum + " " + postcode + ", " + city );
+				basketTotal = 0;
 				basket.clear();
 				updateBasketTable();
 				tabbedPane.setSelectedIndex(0);
@@ -172,58 +224,86 @@ public class customer extends user {
 		});
 
 		basket = new HashMap<Item, Integer>();
+		
 		tabbedPane.setEnabledAt(2, false);
+		
 		
 	}
 
 
-	private void populateTable(JPanel productPanel) {
-		ArrayList<Item> tableArrayList = new ArrayList<Item>();
+	private void populateTable() {
+		int gridyIndex = 0;
+		int y = 0; //counting the y axis for the value of the button placement incrementing by 16 each time
+		
 		try {
 		      File f = new File("Stock.txt");
 		      Scanner myReader = new Scanner(f);
 		      while (myReader.hasNextLine()) {
 		        String row = myReader.nextLine();
-		        String[] rowData = row.split(", ");
-		        System.out.println(rowData[1]);
-		        if (rowData[1].equals("mouse")) {
-		        	mouse m = new mouse(rowData[0], rowData[1], rowData[2], rowData[3], rowData[4], rowData[5], Integer.parseInt(rowData[6]), Float.parseFloat(rowData[7]),Float.parseFloat(rowData[8]), Integer.parseInt(rowData[9]));
-		        	tableArrayList.add(m);
-		        } else {
-		        	keyboard k = new keyboard(rowData[0], rowData[1], rowData[2], rowData[3], rowData[4], rowData[5], Integer.parseInt(rowData[6]), Float.parseFloat(rowData[7]),Float.parseFloat(rowData[8]), rowData[9]);
-		        	tableArrayList.add(k);
+		        if (row.contains("mouse") || (row.contains("keyboard"))) {
+		        	System.out.println(row);
+		        	String[] rowData = row.split(", ");
+		        	
+		        	if (rowData[1].equals("mouse")) {
+		        		mouse m = new mouse(rowData[0], rowData[1], rowData[2], rowData[3], rowData[4], rowData[5], Integer.parseInt(rowData[6]), Float.parseFloat(rowData[7]),Float.parseFloat(rowData[8]), Integer.parseInt(rowData[9]));
+		        		System.out.println(m);
+		        		inventory.add(m);
+		        		addButton(productPanel, m, y);
+		        	} else  {
+		        		keyboard k = new keyboard(rowData[0], rowData[1], rowData[2], rowData[3], rowData[4], rowData[5], Integer.parseInt(rowData[6]), Float.parseFloat(rowData[7]),Float.parseFloat(rowData[8]), rowData[9]);
+		        		inventory.add(k);
+		        		addButton(productPanel, k, y);
 		        }
-		      }
-		      System.out.println(tableArrayList);
-		      myReader.close();
-		    } catch (FileNotFoundException e) {
-			   System.out.println("An error occurred.");
-			   e.printStackTrace();
+		        y+= 16;
+		        
+		        
+		      
+		      System.out.println(inventory);
+		      
+		    
 			}
-		dtmItems = new DefaultTableModel();
-		dtmItems.setColumnIdentifiers(new Object[] {"Barcode" , "Device Type", "Style", "Brand", "Colour", "Connectivity", "Layout", "No. Buttons", "Quantity", "Price"});
-		productTable.setModel(dtmItems);
-		int x = 25; //counting the x axis for the value of the button placement incrementing by 18 each time
-		for (Item i : tableArrayList) {
+		updateInventoryTable();
+		      }myReader.close();
+		      
+		} catch (FileNotFoundException e) {
+			   System.out.println("An error occurred.");
+			   e.printStackTrace(); 
+	}
+		        
+	}
+	private void updateInventoryTable() {
+		
+		System.out.println(productPanel.getComponents());
+		productTable.setVisible(true);
+		dtmItems.setRowCount(0);
+		
+		for (Item i : inventory) {
 			if (i.getDeviceType().equals("mouse")) {
 				mouse m = (mouse) i;
 				dtmItems.addRow(new Object[] {m.getBarcode(), m.getDeviceType(), m.getStyle(), m.getBrand(), m.getColour(), m.getConnectivity(), "N/A", m.getNumberOfButtons(), m.getQuantity(), String.format("%.2f",m.getRetailPrice())});
-				addButton(productPanel, m, x);
+				
 			
 			} else {
 				keyboard k = (keyboard) i;
 				dtmItems.addRow(new Object[] {k.getBarcode(), k.getDeviceType(), k.getStyle(), k.getBrand(), k.getColour(), k.getConnectivity(), k.getLayout(), "N/A", k.getQuantity(), String.format("%.2f",k.getRetailPrice())});
-				addButton(productPanel, k, x);
+				
 			}
-			x+= 16;
+			
+			
+			
 		}
+		
 	}
 	
-	private void addButton(JPanel productPanel, Item i, int x) {
+	private void addButton(JPanel productPanel, Item i, int y) {
+		
+		
 		JButton purchaseButton = i.getAddItemButton();
-		purchaseButton.setBounds(860, x, 125, 18);
+		
+		purchaseButton.setBounds(0, y, 100, 16);
 		purchaseButton.setVisible(true);
-		productPanel.add(purchaseButton);
+		purchaseButtonPanel.add(purchaseButton);
+		
 		purchaseButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
@@ -235,11 +315,14 @@ public class customer extends user {
 						JOptionPane.showMessageDialog(null, "The number you have entered exceeds the stock amount");
 					} else {
 						basket.put(i, quantity);
+						i.setQuantity(i.getQuantity() - quantity);
+						updateBasketTable();
+						updateInventoryTable();
 					}
 				}catch(NumberFormatException e) {
 					JOptionPane.showMessageDialog(null, "Please enter a value which is a number");
 				}
-				updateBasketTable();
+				
 			}
 		});
 	}
@@ -256,6 +339,7 @@ public class customer extends user {
 		}
 		dtmBasket.addRow(new Object[] {"","","","","TOTAL:",String.format("%.2f", basketTotal) });
 	}
-
-	
 }
+
+
+
