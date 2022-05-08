@@ -29,6 +29,7 @@ public class customer extends user {
 	private HashMap<Item, Integer> basket;
 	private ArrayList<Item> inventory;
 	private float basketTotal;
+	private JTextField textField;
 	
 	
 	public customer(String name,String houseNum, String postcode, String city) {
@@ -90,6 +91,27 @@ public class customer extends user {
 		gbc_purchaseButtonPanel.gridy = 0;
 		inventoryContentPanel.add(purchaseButtonPanel, gbc_purchaseButtonPanel);
 		
+		JComboBox comboBox = new JComboBox();
+		comboBox.setBounds(880, 40, 119, 20);
+		productPanel.add(comboBox);
+		
+		textField = new JTextField();
+		textField.setBounds(880, 136, 119, 20);
+		productPanel.add(textField);
+		textField.setColumns(10);
+		
+		JButton btnNewButton = new JButton("Filter");
+		btnNewButton.setBounds(880, 167, 89, 23);
+		productPanel.add(btnNewButton);
+		
+		JLabel lblNewLabel = new JLabel("New label");
+		lblNewLabel.setBounds(880, 121, 46, 14);
+		productPanel.add(lblNewLabel);
+		
+		JLabel lblNewLabel_1 = new JLabel("New label");
+		lblNewLabel_1.setBounds(880, 27, 46, 14);
+		productPanel.add(lblNewLabel_1);
+		
 		
 		
 		inventory = new ArrayList<Item>();
@@ -111,7 +133,7 @@ public class customer extends user {
 				basket.clear();
 				basketTotal = 0;
 				updateBasketTable();
-				updateInventoryTable();
+				populateTable();
 				
 			}
 		});
@@ -315,7 +337,8 @@ public class customer extends user {
 						JOptionPane.showMessageDialog(null, "The number you have entered exceeds the stock amount");
 					} else {
 						basket.put(i, quantity);
-						i.setQuantity(i.getQuantity() - quantity);
+						int row = getRow();
+						dtmItems.setValueAt((dtmItems.getValueAt(row, 8) - quantity), row, 8);
 						updateBasketTable();
 						updateInventoryTable();
 					}
