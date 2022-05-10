@@ -96,5 +96,11 @@ abstract class Item {
 	public void setAddItemButton(JButton addItemButton) {
 		this.addItemButton = addItemButton;
 	}
+	public void checkQuantity(int quantityLeft) { //quantity left represents the amount of stock minus the amount thats in the basket
+		if (quantityLeft == 0) {
+			addItemButton.setText("Out of stock");
+			addItemButton.setEnabled(false);
+		}
+	}
 
 }

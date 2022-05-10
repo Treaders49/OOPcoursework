@@ -6,6 +6,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -28,6 +30,7 @@ public class customer extends user {
 	private DefaultTableModel dtmBasket;
 	private HashMap<Item, Integer> basket;
 	private ArrayList<Item> inventory;
+	private ArrayList<JButton> buttonList;
 	private float basketTotal;
 	private JTextField textField;
 	
@@ -37,6 +40,8 @@ public class customer extends user {
 		setTitle("Customer Menu - User: " + name);
 		getContentPane().setLayout(null);
 		
+		buttonList = new ArrayList<JButton>();
+
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		tabbedPane.setBounds(10, 11, 1014, 539);
 		getContentPane().add(tabbedPane);
@@ -203,10 +208,12 @@ public class customer extends user {
 				
 			}
 			if (!(validationIssues)) {
-				JOptionPane.showMessageDialog(null, "£" + String.format("%.2f", basketTotal) + " paid using " + paymentMethod + ", and the delivery address is number " + houseNum + " " + postcode + ", " + city );
+				JOptionPane.showMessageDialog(null, "Â£" + String.format("%.2f", basketTotal) + " paid using " + paymentMethod + ", and the delivery address is number " + houseNum + " " + postcode + ", " + city );
 				basketTotal = 0;
 				basket.clear();
 				updateBasketTable();
+				updatestock();
+				populateTable();
 				tabbedPane.setSelectedIndex(0);
 			}
 			
@@ -254,6 +261,12 @@ public class customer extends user {
 
 
 	private void populateTable() {
+		for (JButton button : buttonList ) {
+			button.setVisible(false);
+		}
+		buttonList.clear();
+		dtmItems.setRowCount(0);
+		inventory.clear();
 		int gridyIndex = 0;
 		int y = 0; //counting the y axis for the value of the button placement incrementing by 16 each time
 		
@@ -321,26 +334,36 @@ public class customer extends user {
 		
 		
 		JButton purchaseButton = i.getAddItemButton();
-		
+		buttonList.add(purchaseButton);
 		purchaseButton.setBounds(0, y, 100, 16);
 		purchaseButton.setVisible(true);
 		purchaseButtonPanel.add(purchaseButton);
 		
 		purchaseButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				int row = getRow(i); //the row which the item is on, used to manipulate stock etc
 				try {
 					int quantity = Integer.parseInt(JOptionPane.showInputDialog("Enter how many of this product you would like to purchase:", null));
 					if (quantity < 0) {
 						JOptionPane.showMessageDialog(null, "Please enter a value which is more than zero");
 					
-					}else if (quantity > i.getQuantity()) {
+					}else if (quantity > (int)dtmItems.getValueAt(row, 8)) {
 						JOptionPane.showMessageDialog(null, "The number you have entered exceeds the stock amount");
+						
 					} else {
-						basket.put(i, quantity);
-						int row = getRow();
-						dtmItems.setValueAt((dtmItems.getValueAt(row, 8) - quantity), row, 8);
+						if (basket.containsKey(i)) {
+							basket.put(i, ((int)basket.get(i) + quantity));
+							
+						} else {
+							basket.put(i, quantity);
+						}
+						
+						System.out.println(row);
+						int newValue = ((int)dtmItems.getValueAt(row, 8)) - quantity;
+						dtmItems.setValueAt(newValue, row, 8);
 						updateBasketTable();
-						updateInventoryTable();
+						i.checkQuantity((int)dtmItems.getValueAt(row, 8));
+						
 					}
 				}catch(NumberFormatException e) {
 					JOptionPane.showMessageDialog(null, "Please enter a value which is a number");
@@ -350,11 +373,14 @@ public class customer extends user {
 		});
 	}
 	private void updateBasketTable() {
+		basketTotal = 0;
 		dtmBasket = new DefaultTableModel();
 		basketTable.setModel(dtmBasket);
 		dtmBasket.setColumnIdentifiers(new Object[] {"Barcode", "Brand", "Type", "quantity purchased", "cost of item", "total cost"});
 		
 		for (HashMap.Entry<Item, Integer> entry : basket.entrySet()) {
+			System.out.println(entry.getKey());
+			System.out.println(entry.getValue());
 			Item i = entry.getKey();
 			int quantity = entry.getValue();
 			dtmBasket.addRow(new Object[] {i.getBarcode(), i.getBrand(), i.getDeviceType(), quantity, String.format("%.2f", i.getRetailPrice()), String.format("%.2f",(quantity * i.getRetailPrice())) });
@@ -362,6 +388,43 @@ public class customer extends user {
 		}
 		dtmBasket.addRow(new Object[] {"","","","","TOTAL:",String.format("%.2f", basketTotal) });
 	}
+
+	private int getRow(Item i) {
+		int index = 0;
+		while (index < inventory.size() - 1) {
+			if (i.getBarcode().equals(dtmItems.getValueAt(index, 0)) ) {
+				break;
+			}
+			index++;
+		}
+		return index;
+	}
+
+private void updatestock() {
+	try {
+		FileWriter myWriter = new FileWriter("Stock.txt");
+		for (Item i : inventory) {
+			if (basket.containsKey(i)) {
+				int newQuantity = (int) dtmItems.getValueAt(getRow(i), 8);
+				if (i.getDeviceType().equals("mouse")) {
+					mouse m = (mouse) i;
+					myWriter.write(m.getBarcode() + ", " + m.getDeviceType() + ", " + m.getStyle() + ", " + m.getBrand() + ", " + m.getColour() + ", " + m.getStyle() + ", " + m.getConnectivity() + ", " + m.getStyle() + ", " + Integer.toString(newQuantity) + ", " + Float.toString(m.getOriginalCost()) + ", " + Float.toString(m.getRetailPrice()) + Integer.toString(m.getNumberOfButtons()));
+				} else {
+					keyboard k = (keyboard) i;
+					myWriter.write(k.getBarcode() + ", " + k.getDeviceType() + ", " + k.getStyle() + ", " + k.getBrand() + ", " + k.getColour() + ", " + k.getStyle() + ", " + k.getConnectivity() + ", " + k.getStyle() + ", " + Integer.toString(newQuantity) + ", " + Float.toString(k.getOriginalCost()) + ", " + Float.toString(k.getRetailPrice()) + (k.getLayout()));
+				}
+				
+			} else {
+				myWriter.write(m.getBarcode() + ", " + m.getDeviceType() + ", " + m.getStyle() + ", " + m.getBrand() + ", " + m.getColour() + ", " + m.getStyle() + ", " + m.getConnectivity() + ", " + m.getStyle() + ", " + Integer.toString(newQuantity) + ", " + Float.toString(m.getOriginalCost()) + ", " + Float.toString(m.getRetailPrice()) + Integer.toString(m.getNumberOfButtons()));
+			}
+		}
+
+		myWriter.close();
+	  } catch (IOException e) {
+		System.out.println("An error occurred.");
+		e.printStackTrace();
+	  }
+}
 }
 
 
