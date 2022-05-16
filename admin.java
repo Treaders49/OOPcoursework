@@ -358,7 +358,7 @@ public class admin extends user { //admin is a subclass of user and therefore sh
 		}
 	}
 	
-	private void loadAdminInventory() { //reads from the stock file and
+	private void loadAdminInventory() { //reads from the stock file and populates the admin table of every entry
 		dtmItems.setRowCount(0);
 		
 		inventory.clear();
@@ -399,9 +399,9 @@ public class admin extends user { //admin is a subclass of user and therefore sh
 		        
 		        }
 		      }
-		      inventory = sortByAsc(inventory);
+		      inventory = sortByAsc(inventory); //sorting the prices of the stock items into ascending order ready to be displayed to the screen
 		        
-		        updateInventoryTable(inventory);
+		        updateInventoryTable(inventory); //displaying the chosen stock to the screen
 		
 		      myReader.close();
 		      
@@ -417,7 +417,7 @@ public class admin extends user { //admin is a subclass of user and therefore sh
 		productTable.setVisible(true);
 		dtmItems.setRowCount(0);
 		
-		for (Item i : itemsToDisplay) {
+		for (Item i : itemsToDisplay) { //loops through the items that have been created and displays each one to the sccreen
 			if (i.getDeviceType().equals("mouse")) {
 				mouse m = (mouse) i;
 				dtmItems.addRow(new Object[] {m.getBarcode(), m.getDeviceType(), m.getStyle(), m.getBrand(), m.getColour(), m.getConnectivity(), "N/A", m.getNumberOfButtons(), m.getQuantity(), String.format("%.2f",m.getOriginalCost()), String.format("%.2f",m.getRetailPrice())});
