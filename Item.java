@@ -3,7 +3,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 
-abstract class Item {
+class Item {
 
 	private JButton addItemButton;
 	
