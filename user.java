@@ -34,13 +34,13 @@ public class user extends JFrame{
 		
 	}
 	
-	protected ArrayList<Item> sortByAsc(ArrayList<Item> inventory) {
+	protected ArrayList<Item> sortByAsc(ArrayList<Item> inventory) { //a function that is shared by admin and customer to order items in a jtable based on their retail prices
 		int x;
 		int y;
-		for (x = 0; x < inventory.size(); x++) {
+		for (x = 0; x < inventory.size(); x++) { //a simple bubble sort algorithm used to compare each of the arrayList items and place them in ascending order
 			for (y = x + 1; y < inventory.size(); y++) {
 				if (inventory.get(y).getRetailPrice() < inventory.get(x).getRetailPrice()) {
-					Item temp = inventory.get(y);
+					Item temp = inventory.get(y); //swapping of the items
 					inventory.set(y, inventory.get(x));
 					inventory.set(x, temp);
 					
