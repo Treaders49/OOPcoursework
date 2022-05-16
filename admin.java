@@ -27,7 +27,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import java.awt.Font;
 
-public class admin extends user {
+public class admin extends user { //admin is a subclass of user and therefore shares all of the same attributes as customer
 
 	private JPanel contentPane;
 	private JTextField txtBarcode;
@@ -42,10 +42,10 @@ public class admin extends user {
 	private JComboBox layoutBox;
 	private JRadioButton addMouseButton;
 	private JRadioButton addKeyboardButton;
-	private ArrayList<JTextField> fieldArray;
+	private ArrayList<JTextField> fieldArray; //an arraylist of all text fields which makes clearing all of them more efficient
 	
 	public admin(String name, String houseNum, String postcode, String city) {
-		super(name, houseNum, postcode, city);
+		super(name, houseNum, postcode, city); //initialising superclass attributes that are shared with customer
 		super.setBounds(100, 100, 930, 600);
 		
 		
@@ -174,13 +174,13 @@ public class admin extends user {
 		layoutLabel.setVisible(false);
 		
 		fieldArray = new ArrayList<JTextField>(Arrays.asList(txtBarcode, txtType, txtBrand, txtQuantity, txtConnectivity, txtColour, txtOriginalCost, txtRetailPrice, txtNumButtons));
-		System.out.println(fieldArray);
+
 		
 		addKeyboardButton = new JRadioButton("Add Keyboard");
 		addKeyboardButton.setBounds(418, 38, 109, 23);
 		addItemPanel.add(addKeyboardButton);
 		addKeyboardButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent e) { //changing the format of data entry to fit adding a new keyboard
 				typeLabel.setText("Add Keyboard");
 				itemTypeLabel.setText("Keyboard type");
 				numButtonsLabel.setVisible(false);
@@ -194,7 +194,7 @@ public class admin extends user {
 		addMouseButton.setBounds(258, 38, 109, 23);
 		addItemPanel.add(addMouseButton);
 		addMouseButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent e) { //changing the format of data entry to fit adding a new mouse
 				typeLabel.setText("Add Mouse");
 				itemTypeLabel.setText("Mouse type");
 				layoutLabel.setVisible(false);
@@ -230,7 +230,7 @@ public class admin extends user {
 		});
 	}
 	
-	private boolean barcodeExists(String barcode) {
+	private boolean barcodeExists(String barcode) { //function that checks to see if a barcode exists by iterating through the file and storing each barcode
 		boolean exists = false;
 		ArrayList<String> barcodeArray = new ArrayList<String>();
 		
@@ -257,7 +257,7 @@ public class admin extends user {
 		return exists;
 	}
 	
-	private void addItem() {
+	private void addItem() { //function for adding an item to the stock after checking the format for all of the entries based on their different requirements
 		String barcode;
 		String brand;
 		String type;
@@ -269,33 +269,33 @@ public class admin extends user {
 		String layout;
 		int numButtons = 0;
 		if (((addKeyboardButton.isSelected()) && ((txtBarcode.getText().equals("")) || (txtBrand.getText().equals("")) || (txtType.getText().equals("")) || (txtQuantity.getText().equals("")) || (txtConnectivity.getText().equals("")) || (txtColour.getText().equals("")) || (txtOriginalCost.getText().equals(""))|| (txtRetailPrice.getText().equals(""))))  || ((addMouseButton.isSelected()) && ((txtBarcode.getText().equals("")) || (txtBrand.getText().equals("")) || (txtType.getText().equals("")) || (txtQuantity.getText().equals("")) || (txtConnectivity.getText().equals("")) || (txtColour.getText().equals("")) || (txtOriginalCost.getText().equals(""))|| (txtRetailPrice.getText().equals("")) || (txtNumButtons.getText().equals(""))))) {
-			JOptionPane.showMessageDialog(null, "Some fields have been left blank");
+			JOptionPane.showMessageDialog(null, "Some fields have been left blank"); //checking for if any inputs have been left blank
 			return;
 		} else {
-				if (txtBarcode.getText().matches("[0-9]+") && (txtBarcode.getText().length() == 6)) { //check to see if the barcode matches the format of only numbers and length of 6
-					if (barcodeExists(txtBarcode.getText())) {
+				if (txtBarcode.getText().matches("[0-9]+") && (txtBarcode.getText().length() == 6)) { //check to see if the barcode matches the format of only numbers using the .matches function and also ensuring it is a length of 6 
+					if (barcodeExists(txtBarcode.getText())) { //calls the function barcodeExists with the barcode as a parameter
 						JOptionPane.showMessageDialog(null, "Barcode already exists and must be unique");
-						return;
+						return; 
 					}
-					barcode = txtBarcode.getText();
-					System.out.println(barcode);
+					barcode = txtBarcode.getText(); //if the requirements are satisfied, the barcode is assigned
+					
 				} else {
 					JOptionPane.showMessageDialog(null, "Barcode should not include letters and should be 6 digits long");
-					return;
+					return; //if requirements are not satisfied, break from the function
 				}
 				
-				if ((txtType.getText().matches("[a-zA-Z]+")) && (txtBrand.getText().matches("[a-zA-Z]+")) && (txtColour.getText().matches("[a-zA-Z]+")) && (txtConnectivity.getText().matches("[a-zA-Z]+")) ) {
+				if ((txtType.getText().matches("[a-zA-Z]+")) && (txtBrand.getText().matches("[a-zA-Z]+")) && (txtColour.getText().matches("[a-zA-Z]+")) && (txtConnectivity.getText().matches("[a-zA-Z]+")) ) { //using the regex phrases and .matches function to ensure that these 4 inputs are made of only letters
 					type = txtType.getText();
 					colour = txtColour.getText();
 					brand = txtBrand.getText();
 					connectivity = txtConnectivity.getText();
-					System.out.println(txtType.getText());
+					
 				} else {
 					JOptionPane.showMessageDialog(null, "entries type, brand, colour and connectivity should not have numbers in");
 					return;
 				}
 				
-				if(txtQuantity.getText().matches("[0-9]+")) {
+				if(txtQuantity.getText().matches("[0-9]+")) { //checking that quantity can only be a whole number
 					quantity = Integer.parseInt(txtQuantity.getText()); 
 					
 				} else {
@@ -310,7 +310,7 @@ public class admin extends user {
 					JOptionPane.showMessageDialog(null, "retail price and original cost should be a whole number or decimal in the format X.XX");
 					return;
 				}
-				if ((txtNumButtons.getText().matches("[0-9]+")) && (!(txtNumButtons.getText().equals("")))) {
+				if ((txtNumButtons.getText().matches("[0-9]+")) && (!(txtNumButtons.getText().equals("")))) {//saying if there is something entered in the numButtons box and it is in the number format, assign it to numButtons variable
 					numButtons = Integer.parseInt(txtNumButtons.getText());
 					
 				} else {
@@ -319,13 +319,13 @@ public class admin extends user {
 					}
 				}
 				
-				if (addKeyboardButton.isSelected()) {
-					layout = (String) layoutBox.getSelectedItem();
+				if (addKeyboardButton.isSelected()) { //checking it is the keyboard option that is selected
+					layout = (String) layoutBox.getSelectedItem(); //getting the layout that does not need a check
 					keyboard k = new keyboard(barcode, "keyboard ", type, brand, colour, connectivity, quantity, originalCost, retailPrice, layout); //create a new keyboard object
-					addToStock(k);
+					addToStock(k); //creating a new keyboard object and adding it to the stock
 				} else {
 					mouse m = new mouse(barcode, "mouse", type, brand, colour, connectivity, quantity, originalCost, retailPrice, numButtons);
-					addToStock(m);
+					addToStock(m); //creating a new mouse object and adding it to the stock
 				}
 				
 		}
@@ -333,15 +333,15 @@ public class admin extends user {
 	
 	private void addToStock(Item i) {
 		try {
-			FileWriter fw = new FileWriter("Stock.txt", true);
-		    BufferedWriter bw = new BufferedWriter(fw);
+			FileWriter fw = new FileWriter("Stock.txt", true); //initialising a new filewriter with the given text file
+		    BufferedWriter bw = new BufferedWriter(fw); //bufferedwriter allows the ability to append to the end of a text file
 		    if (i.getDeviceType().equals("mouse")) {
-		    	mouse m = (mouse) i;
+		    	mouse m = (mouse) i; //if the type is mouse create a new mouse object and format the entry into the stock file so it can be read by customers and admin
 		    	bw.write("\n" + m.getBarcode() + ", mouse, " + m.getStyle() + ", " + m.getBrand() + ", " + m.getColour() + ", " + m.getConnectivity() + ", " + m.getQuantity() + ", " + m.getOriginalCost() + ", " + m.getRetailPrice() + ", " + m.getNumberOfButtons());
 		    	JOptionPane.showMessageDialog(null, "Mouse added successfully");
 		    	clearTextFields();
 		    } else { 
-		    	keyboard k = (keyboard) i;
+		    	keyboard k = (keyboard) i; //create a new keyboard object and format into stock file
 		    	bw.write("\n" + k.getBarcode() + ", keyboard, " + k.getStyle() + ", " + k.getBrand() + ", " + k.getColour() + ", " + k.getConnectivity() + ", " + k.getQuantity() + ", " + k.getOriginalCost() + ", " + k.getRetailPrice() + ", " + k.getLayout());
 		    	JOptionPane.showMessageDialog(null, "Keyboard added successfully");
 		    	clearTextFields();
@@ -352,13 +352,13 @@ public class admin extends user {
 		}
 	}
 	
-	private void clearTextFields() {
+	private void clearTextFields() { //clear all entries when an item is added
 		for(JTextField field: fieldArray) {
 			field.setText("");
 		}
 	}
 	
-	private void loadAdminInventory() {
+	private void loadAdminInventory() { //reads from the stock file and
 		dtmItems.setRowCount(0);
 		
 		inventory.clear();
