@@ -29,14 +29,14 @@ abstract class Item {
 		
 		
 		
-		if (quantity == 0) {
+		if (quantity == 0) { //on initialisation set button to be unclickable when there is no stock left
 			setAddItemButton(new JButton("Out of stock"));
 			addItemButton.setEnabled(false);
 		} else {
 			setAddItemButton(new JButton("Purchase"));
 		}
 	}
-	public String getBarcode() {
+	public String getBarcode() { //getters and setters for all of the items attributes
 		return barcode;
 	}
 	public void setBarcode(String barcode) {
