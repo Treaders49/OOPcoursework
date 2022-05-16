@@ -29,10 +29,10 @@ public class customer extends user {
 	private JPanel purchaseButtonPanel;
 	
 	private DefaultTableModel dtmBasket;
-	private HashMap<Item, Integer> basket;
-	private ArrayList<String> brandList;
+	private HashMap<Item, Integer> basket; //stores items to be added to the basket as well as the quantity of these items
+	private ArrayList<String> brandList; //a list of all brands for the brand filter combo box
 	private ArrayList<JButton> buttonList;
-	private float basketTotal;
+	private float basketTotal; //a running total of everything in the basket
 	private JTextField buttonNumberField;
 	private JComboBox brandComboBox;
 	
@@ -162,7 +162,7 @@ public class customer extends user {
 		payButton.setBounds(860,90,150,50);
 		basketPanel.add(payButton);
 		payButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
+			public void actionPerformed(ActionEvent arg0) {//a button which allows the payment screen to be accessed only when there is something in the basket
 				if (basket.isEmpty()) {
 					JOptionPane.showMessageDialog(null, "Basket is currently empty");
 				} else {
@@ -195,14 +195,14 @@ public class customer extends user {
 		JButton confirmPayButton = new JButton("Confirm Payment");
 		confirmPayButton.setBounds((paypalButton.getX()+ 50), (paypalButton.getY() + 400), 175, 25);
 		confirmPayButton.setVisible(true);
-		confirmPayButton.addActionListener(new ActionListener() {
+		confirmPayButton.addActionListener(new ActionListener() { //determines which payment method has been selected
 			public void actionPerformed(ActionEvent arg0) {
 			String paymentMethod;
 			boolean validationIssues = false;
 			if (paypalButton.isSelected()) {
 				paymentMethod = "Paypal";
 				String email = emailAddressBox.getText();
-				if (!(email.contains("@"))) {
+				if (!(email.contains("@"))) { //checking the email is valid (includes an @)
 					JOptionPane.showMessageDialog(null, "email must include an @");
 					validationIssues = true;
 					emailAddressBox.setText("");
@@ -211,7 +211,7 @@ public class customer extends user {
 				paymentMethod = "Credit Card";
 				String cardno = cardNumber.getText();
 				String securityno = securityNumber.getText();
-				if ((cardno.length() != 6) || (securityno.length() != 3)) {
+				if ((cardno.length() != 6) || (securityno.length() != 3)) { //verifies length of card numbers
 					validationIssues = true;
 					JOptionPane.showMessageDialog(null, "Card number should be 6 digits and security number should be 3");
 					cardNumber.setText("");
@@ -219,13 +219,13 @@ public class customer extends user {
 				}
 				
 			}
-			if (!(validationIssues)) {
-				JOptionPane.showMessageDialog(null, "£" + String.format("%.2f", basketTotal) + " paid using " + paymentMethod + ", and the delivery address is number " + houseNum + " " + postcode + ", " + city );
+			if (!(validationIssues)) { //shows the correct message in the format required
+				JOptionPane.showMessageDialog(null, "Â£" + String.format("%.2f", basketTotal) + " paid using " + paymentMethod + ", and the delivery address is number " + houseNum + " " + postcode + ", " + city );
 				updatestock();
 				basketTotal = 0;
 				basket.clear();
 				updateBasketTable();
-				populateTable(false);
+				populateTable(false); //populating the table with the updated quantities of items
 				tabbedPane.setSelectedIndex(0);
 				
 			}
@@ -273,7 +273,7 @@ public class customer extends user {
 	}
 
 
-	private void populateTable(boolean filtered) {
+	private void populateTable(boolean filtered) { //a function to retrieve items from the stock.txt file and filter them based on the boolean value 'filtered'
 		
 		for (JButton button : buttonList ) { //clearing the previous screen
 			button.setVisible(false);
@@ -311,7 +311,7 @@ public class customer extends user {
 		        	} else  {
 		        		keyboard k = new keyboard(rowData[0], rowData[1], rowData[2], rowData[3], rowData[4], rowData[5], Integer.parseInt(rowData[6]), Float.parseFloat(rowData[7]),Float.parseFloat(rowData[8]), rowData[9]);
 		        		if (basketQuantity(k.getBarcode()) != 0) { 
-		        			k.setQuantity(k.getQuantity() - basketQuantity(k.getBarcode()));
+		        			k.setQuantity(k.getQuantity() - basketQuantity(k.getBarcode()));//temporarily changing the quantity while the item is in the basket
 		        		}
 		        		inventory.add(k);
 		        		addButton(productPanel, k, y);
@@ -344,7 +344,7 @@ public class customer extends user {
 			int y = 0;
 			String numButtons = buttonNumberField.getText();
 			String brand = (String) brandComboBox.getSelectedItem();
-			switch (numButtons) {
+			switch (numButtons) { //a switch statement for if a user has specified the amount of buttons when they want to filter
 			case "":
 				
 				for (Item i: inventory) {
@@ -352,7 +352,7 @@ public class customer extends user {
 						purchaseButtonPanel.remove(i.getAddItemButton());
 					} else {
 						i.getAddItemButton().setBounds(0, y, 105, 16);
-						filteredInventory.add(i);
+						filteredInventory.add(i); //creating a filtered inventory of all items in inventory that fit the criteria
 						y+=16;
 					}
 					
@@ -398,7 +398,7 @@ public class customer extends user {
 	private void updateInventoryTable(ArrayList<Item> itemsToDisplay) { //chooses the appropriate list to display to the screen
 		
 		productTable.setVisible(true);
-		dtmItems.setRowCount(0);
+		dtmItems.setRowCount(0); //deleting previous items on the jtable
 		
 		for (Item i : itemsToDisplay) {
 			if (i.getDeviceType().equals("mouse")) {
@@ -415,7 +415,7 @@ public class customer extends user {
 	}
 	
 	
-	private void addButton(JPanel productPanel, Item i, int y) {
+	private void addButton(JPanel productPanel, Item i, int y) { //adding a button which is an attribute of each item with a y value to align it with its place in the table
 		
 		int row = getRow(i); //the row which the item is on, used to manipulate stock etc
 		JButton purchaseButton = i.getAddItemButton();
@@ -427,10 +427,9 @@ public class customer extends user {
 		
 		purchaseButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				int row = getRow(i); //the row which the item is on, used to manipulate stock etc
 				try {
 					int quantity = Integer.parseInt(JOptionPane.showInputDialog("Enter how many of this product you would like to purchase:", null));
-					if (quantity < 0) {
+					if (quantity < 0) { //checks for if user is trying to purchase too many of a product or if a number is not valid like -1
 						JOptionPane.showMessageDialog(null, "Please enter a value which is more than zero");
 					
 					}else if (quantity > (int)dtmItems.getValueAt(row, 8)) {
@@ -440,18 +439,18 @@ public class customer extends user {
 					} else {
 						System.out.println(containsBarcode(i.getBarcode()));
 						if (containsBarcode(i.getBarcode())) {//the process of adding to quantity of a bought item rather than making it a seperate entity
-							Item duplicateItem = getItemFromBasket(i.getBarcode());
-							basket.put(duplicateItem, ((int)basket.get(duplicateItem) + quantity));
+							Item duplicateItem = getItemFromBasket(i.getBarcode());//a function to get the actual object that is stored in the basket based on the barcode
+							basket.put(duplicateItem, ((int)basket.get(duplicateItem) + quantity)); //updating the quantity that the user has in their basket if it is already in the basket
 							
 						} else {
-							basket.put(i, quantity);
+							basket.put(i, quantity); //adding to the basket the item object and the quantity that the user has specified
 						}
 						
-						System.out.println(row);
-						int newValue = ((int)dtmItems.getValueAt(row, 8)) - quantity;
+						
+						int newValue = ((int)dtmItems.getValueAt(row, 8)) - quantity; //updating the quantity on the customers viewing table
 						dtmItems.setValueAt(newValue, row, 8);
-						updateBasketTable();
-						i.checkQuantity((int)dtmItems.getValueAt(row, 8));
+						updateBasketTable(); //updating the basket based on these new values
+						i.checkQuantity((int)dtmItems.getValueAt(row, 8)); //checking the quantity that has been updated to see if an out of stock message needs to be displayed
 						
 					}
 				}catch(NumberFormatException e) {
@@ -467,7 +466,7 @@ public class customer extends user {
 		basketTable.setModel(dtmBasket);
 		dtmBasket.setColumnIdentifiers(new Object[] {"Barcode", "Brand", "Type", "quantity purchased", "cost of item", "total cost"});
 		
-		for (HashMap.Entry<Item, Integer> entry : basket.entrySet()) {
+		for (HashMap.Entry<Item, Integer> entry : basket.entrySet()) { //iterating through each entry in the basket
 			System.out.println(entry.getKey());
 			System.out.println(entry.getValue());
 			Item i = entry.getKey();
