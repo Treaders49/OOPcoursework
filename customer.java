@@ -467,22 +467,18 @@ public class customer extends user {
 		dtmBasket.setColumnIdentifiers(new Object[] {"Barcode", "Brand", "Type", "quantity purchased", "cost of item", "total cost"});
 		
 		for (HashMap.Entry<Item, Integer> entry : basket.entrySet()) { //iterating through each entry in the basket
-			System.out.println(entry.getKey());
-			System.out.println(entry.getValue());
 			Item i = entry.getKey();
-			int quantity = entry.getValue();
+			int quantity = entry.getValue(); //the process of displaying each item in the basket with a bit of extra information
 			dtmBasket.addRow(new Object[] {i.getBarcode(), i.getBrand(), i.getDeviceType(), quantity, String.format("%.2f", i.getRetailPrice()), String.format("%.2f",(quantity * i.getRetailPrice())) });
-			basketTotal+= (quantity * i.getRetailPrice());
+			basketTotal+= (quantity * i.getRetailPrice()); //increasing the basket total by adding the new items to the total
 		}
-		dtmBasket.addRow(new Object[] {"","","","","TOTAL:",String.format("%.2f", basketTotal) });
+		dtmBasket.addRow(new Object[] {"","","","","TOTAL:",String.format("%.2f", basketTotal) }); //displaying a row at the bottom showing the basket total
 	}
 
 	private int getRow(Item i) {
 		int index = 0;
 		
-		while (index < dtmItems.getRowCount() - 1) {
-			System.out.println("barcode:" + i.getBarcode());
-			System.out.println(dtmItems.getValueAt(index, 0));
+		while (index < dtmItems.getRowCount() - 1) { //iterates through every row looking for the row where the rows barcode matches the barcode specified
 			if (i.getBarcode().equals(dtmItems.getValueAt(index, 0)) ) {
 				break;
 				
@@ -491,29 +487,29 @@ public class customer extends user {
 		}
 		System.out.println("index = " + index);
 		
-		return index;
+		return index; //returns the row that the barcode is on
 		
 		
 		
 	}
 
-private void updatestock() {
+private void updatestock() { //updates the new product quantities
 	
 	try {
 		FileWriter myWriter = new FileWriter("Stock.txt");
 		for (Item i : inventory) {
 			System.out.println(basket);
-			if (basket.containsKey(i)) {
+			if (basket.containsKey(i)) {//if in basket change the quantity to what it is to that minus what is in the basket
 				int newQuantity = (int) dtmItems.getValueAt(getRow(i), 8);
 				if (i.getDeviceType().equals("mouse")) {
-					mouse m = (mouse) i;
+					mouse m = (mouse) i; 
 					myWriter.write(m.getBarcode() + ", " + m.getDeviceType() + ", " + m.getStyle() + ", " + m.getBrand() + ", " + m.getColour() + ", "  + m.getConnectivity() + ", " + Integer.toString(newQuantity) + ", " + Float.toString(m.getOriginalCost()) + ", " + Float.toString(m.getRetailPrice()) + ", " + Integer.toString(m.getNumberOfButtons()) + "\n");
 				} else {
 					keyboard k = (keyboard) i;
 					myWriter.write(k.getBarcode() + ", " + k.getDeviceType() + ", " + k.getStyle() + ", " + k.getBrand() + ", " + k.getColour() + ", "  + k.getConnectivity() + ", "  + Integer.toString(newQuantity) + ", " + Float.toString(k.getOriginalCost()) + ", " + Float.toString(k.getRetailPrice()) + ", " + (k.getLayout()) + "\n");
 				}
 				
-			} else {
+			} else {//if the item is not in the basket rewrite it as it was written before
 				if (i.getDeviceType().equals("mouse")) {
 					mouse m = (mouse) i;
 					myWriter.write(m.getBarcode() + ", " + m.getDeviceType() + ", " + m.getStyle() + ", " + m.getBrand() + ", " + m.getColour() + ", " +  m.getConnectivity() +  ", " + m.getQuantity() + ", " + Float.toString(m.getOriginalCost()) + ", " + Float.toString(m.getRetailPrice()) + ", " + Integer.toString(m.getNumberOfButtons()) + "\n");
@@ -526,31 +522,31 @@ private void updatestock() {
 
 		myWriter.close();
 	  } catch (IOException e) {
-		System.out.println("An error occurred.");
+		JOptionPane.showMessageDialog(null, "An error occurred.");
 		e.printStackTrace();
 	  }
 }
 
-private int basketQuantity(String itemCode) {
+private int basketQuantity(String itemCode) { //called in populateTable function for updating the stock based on what the basket quantity of an item is
 	int quantity = 0;
 	
 	if (!(basket.isEmpty())) {
 		for (Item key : basket.keySet()) {
-			if (key.getBarcode().equals(itemCode)) {
-				quantity = basket.get(key);
+			if (key.getBarcode().equals(itemCode)) { //identifies if the item is in the basket
+				quantity = basket.get(key); //getitng the corresponding value which is the quantity
 			}
 		
 		}
 	}
-	return quantity;
+	return quantity; //returns the amount of the item that is in the basket
 }
 
-private boolean containsBarcode(String barcode) {
+private boolean containsBarcode(String barcode) { //function to check if an item is in the basket
 	boolean containsBarcode = false;
 	if (!(basket.isEmpty())) {
-		for (Item key : basket.keySet()) {
-			if (key.getBarcode().equals(barcode)) {
-				containsBarcode = true;
+		for (Item key : basket.keySet()) { //iterates through all items in the basket
+			if (key.getBarcode().equals(barcode)) {//if the item passed as a parameter shares a barcode with an item in the basket containsBarcode is set true
+				containsBarcode = true; 
 			}
 		
 		}
@@ -558,19 +554,19 @@ private boolean containsBarcode(String barcode) {
 	return containsBarcode;
 }
 
-private Item getItemFromBasket(String barcode) {
+private Item getItemFromBasket(String barcode) {//function to get an item from the basket by looping through all of the item keys
 	Item i = null;
 	for (Item key : basket.keySet()) {
 		if (key.getBarcode().equals(barcode)) {
 			i = key;
 		}
 	}
-	return i;
+	return i; //returns the item if it is in the basket
 }
 
-private void sortButtons(ArrayList<Item> inventory) {
+private void sortButtons(ArrayList<Item> inventory) { //when the items are sorted in ascending order the buttons also have to be sorted
 	for(Item i: inventory) {
-		i.getAddItemButton().setBounds(0, (16 * inventory.indexOf(i)), 105, 16);
+		i.getAddItemButton().setBounds(0, (16 * inventory.indexOf(i)), 105, 16); //displayed so they are corresponding with their place in the JTable
 	}
 }
 }
