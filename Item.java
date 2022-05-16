@@ -31,6 +31,7 @@ abstract class Item {
 		
 		if (quantity == 0) {
 			setAddItemButton(new JButton("Out of stock"));
+			addItemButton.setEnabled(false);
 		} else {
 			setAddItemButton(new JButton("Purchase"));
 		}
