@@ -47,7 +47,7 @@ public class cas extends JFrame {
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 		
-		JComboBox comboBox = new JComboBox(getNames());
+		JComboBox comboBox = new JComboBox(getNames()); //populates the combo box with names from the users text file
 		comboBox.setBounds(42, 56, 127, 20);
 		contentPane.add(comboBox);
 		
@@ -55,15 +55,15 @@ public class cas extends JFrame {
 		btnLogin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				String user = (String) comboBox.getSelectedItem();
-				if (user.contains("admin")) {
+				if (user.contains("admin")) { //checking if the define a new admin or customer based on the tag in the comboBox
 					int x;
-					for (x = 0; x < 4; x++) {
+					for (x = 0; x < 4; x++) { //finds the correct user from the userArray
 						if (usersArray.get(x).contains(user.substring(0,(user.indexOf(" -"))))){
 							break;
 						}
 						
 						
-					}
+					}//creating a new admin with name, date, postcode and city attributes
 					admin person = new admin(user.substring(0,(user.indexOf("-"))), usersArray.get(x).get(3), usersArray.get(x).get(4), usersArray.get(x).get(5));
 				} else {
 					int x;
@@ -72,7 +72,7 @@ public class cas extends JFrame {
 							break;
 						}
 						
-					}
+					}//creating a new person with name, date, postcode and city attributes
 					customer person = new customer(user.substring(0,(user.indexOf("-"))), usersArray.get(x).get(3), usersArray.get(x).get(4), usersArray.get(x).get(5));
 				}
 				
